@@ -1,12 +1,13 @@
 // Load the data
-d3.csv("data/earthquake_2.5_magnitude_week.csv").then(function(data) {
-    // Parse the data
-    data.forEach(function(d) {
-        d.latitude = +d.latitude;
-        d.longitude = +d.longitude;
-        d.depth = +d.depth;
-        d.mag = +d.mag;
-    });
+d3.csv("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_week.csv").then(function(data) {
+    // Parse the data and filter out invalid entries
+    data = data.map(d => ({
+        latitude: +d.latitude,
+        longitude: +d.longitude,
+        depth: +d.depth,
+        mag: +d.mag,
+        place: d.place
+    })).filter(d => !isNaN(d.latitude) && !isNaN(d.longitude) && !isNaN(d.depth) && !isNaN(d.mag));
 
     // Set up the SVG
     const svg = d3.select("#visualization")
@@ -16,6 +17,15 @@ d3.csv("data/earthquake_2.5_magnitude_week.csv").then(function(data) {
 
     // Initialize the current scene index
     let currentSceneIndex = 0;
+
+    // Tooltip setup
+    const tooltip = d3.select("body").append("div")
+                      .attr("class", "tooltip")
+                      .style("position", "absolute")
+                      .style("background", "#fff")
+                      .style("border", "1px solid #000")
+                      .style("padding", "5px")
+                      .style("display", "none");
 
     // Scene functions
     function introScene() {
@@ -62,9 +72,22 @@ d3.csv("data/earthquake_2.5_magnitude_week.csv").then(function(data) {
            .enter()
            .append("circle")
            .attr("cx", d => xScale(d.mag))
-           .attr("cy", d => yScale(d.depth))
+           .attr("cy", d => 5)
            .attr("r", 5)
-           .attr("fill", "steelblue");
+           .attr("fill", "steelblue")
+           .on("mouseover", function(event, d) {
+               tooltip.style("display", "block")
+                      .html(`Place: ${d.place}<br>Magnitude: ${d.mag}`)
+                      .style("left", (event.pageX + 10) + "px")
+                      .style("top", (event.pageY - 10) + "px");
+           })
+           .on("mousemove", function(event) {
+               tooltip.style("left", (event.pageX + 10) + "px")
+                      .style("top", (event.pageY - 10) + "px");
+           })
+           .on("mouseout", function() {
+               tooltip.style("display", "none");
+           });
 
         // Add annotations
         svg.append("text")
@@ -103,11 +126,32 @@ d3.csv("data/earthquake_2.5_magnitude_week.csv").then(function(data) {
                .data(data)
                .enter()
                .append("circle")
-               .attr("cx", d => projection([d.longitude, d.latitude])[0])
-               .attr("cy", d => projection([d.longitude, d.latitude])[1])
+               .attr("cx", d => {
+                   const coords = projection([d.longitude, d.latitude]);
+                   return coords ? coords[0] : null;
+               })
+               .attr("cy", d => {
+                   const coords = projection([d.longitude, d.latitude]);
+                   return coords ? coords[1] : null;
+               })
                .attr("r", d => Math.sqrt(d.mag))
                .attr("fill", "orange")
-               .attr("opacity", 0.6);
+               .attr("opacity", 0.6)
+               .on("mouseover", function(event, d) {
+                   tooltip.style("display", "block")
+                          .html(`Place: ${d.place}<br>Magnitude: ${d.mag}`)
+                          .style("left", (event.pageX + 10) + "px")
+                          .style("top", (event.pageY - 10) + "px");
+                   d3.select(this).attr("fill", "red");
+               })
+               .on("mousemove", function(event) {
+                   tooltip.style("left", (event.pageX + 10) + "px")
+                          .style("top", (event.pageY - 10) + "px");
+               })
+               .on("mouseout", function() {
+                   tooltip.style("display", "none");
+                   d3.select(this).attr("fill", "orange");
+               });
 
             // Add annotations
             svg.append("text")
@@ -145,7 +189,20 @@ d3.csv("data/earthquake_2.5_magnitude_week.csv").then(function(data) {
            .attr("cx", d => xScale(d.longitude))
            .attr("cy", d => yScale(d.latitude))
            .attr("r", d => d.depth / 20)
-           .attr("fill", "red");
+           .attr("fill", "red")
+           .on("mouseover", function(event, d) {
+               tooltip.style("display", "block")
+                      .html(`Place: ${d.place}<br>Magnitude: ${d.mag}`)
+                      .style("left", (event.pageX + 10) + "px")
+                      .style("top", (event.pageY - 10) + "px");
+           })
+           .on("mousemove", function(event) {
+               tooltip.style("left", (event.pageX + 10) + "px")
+                      .style("top", (event.pageY - 10) + "px");
+           })
+           .on("mouseout", function() {
+               tooltip.style("display", "none");
+           });
 
         // Add annotations
         svg.append("text")
