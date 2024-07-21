@@ -5,7 +5,7 @@ const svg = d3.select("#visualization")
               .attr("height", 500);
 
             const loadData = new Promise((resolve, reject) => {
-                d3.csv('data/iris.csv').then(csvData => {
+                d3.csv('data/Iris.csv').then(csvData => {
                     csvData.forEach(d => {
                         d.sepal_length = +d.sepal_length;
                         d.sepal_width = +d.sepal_width;
