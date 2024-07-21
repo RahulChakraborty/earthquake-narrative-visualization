@@ -1,248 +1,157 @@
-// Load the data
-d3.csv("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_week.csv").then(function(data) {
-    // Parse the data and filter out invalid entries
-    data = data.map(d => ({
-        latitude: +d.latitude,
-        longitude: +d.longitude,
-        depth: +d.depth,
-        mag: +d.mag,
-        place: d.place
-    })).filter(d => !isNaN(d.latitude) && !isNaN(d.longitude) && !isNaN(d.depth) && !isNaN(d.mag));
+let currentScene = 0;
+const scenes = [renderIntro, renderSepalLengthWidth, renderPetalLengthWidth, renderSpeciesScatterPlot];
+const svg = d3.select("#visualization")
+              .attr("width", 960)
+              .attr("height", 500);
 
-    // Set up the SVG
-    const svg = d3.select("#visualization")
-                  .append("svg")
-                  .attr("width", 800)
-                  .attr("height", 600);
+            const loadData = new Promise((resolve, reject) => {
+                d3.csv('data/iris.csv').then(csvData => {
+                    csvData.forEach(d => {
+                        d.sepal_length = +d.sepal_length;
+                        d.sepal_width = +d.sepal_width;
+                        d.petal_length = +d.petal_length;
+                        d.petal_width = +d.petal_width;
+                    });
+                    data = csvData;
+                    resolve(data);
+                }).catch(error => reject(error));
+            });
+            
+            loadData.then(() => {
+                updateScene(data);
+            }).catch(error => console.error('Error loading the data:', error));
 
-    // Initialize the current scene index
-    let currentSceneIndex = 0;
+function updateScene(data) {
+    svg.selectAll("*").remove();
+    scenes[currentScene](data);
+}
 
-    // Tooltip setup
-    const tooltip = d3.select("body").append("div")
-                      .attr("class", "tooltip")
-                      .style("position", "absolute")
-                      .style("background", "#fff")
-                      .style("border", "1px solid #000")
-                      .style("padding", "5px")
-                      .style("display", "none");
+// Intro Scene: Explaining the Dataset
+function renderIntro() {
+    const introText = [
+        "The Iris Flower Dataset",
+        "This dataset contains 150 observations of iris flowers.",
+        "Each observation includes measurements of sepal length, sepal width, petal length, and petal width.",
+        "The dataset contains three species: Iris setosa, Iris versicolor, and Iris virginica.",
+        "This visualization will guide you through different aspects of the dataset."
+    ];
 
-    // Scene functions
-    function introScene() {
-        svg.selectAll("*").remove(); // Clear the SVG
+    svg.selectAll("text")
+       .data(introText)
+       .enter().append("text")
+       .attr("x", 480)
+       .attr("y", (d, i) => 100 + i * 30)
+       .attr("text-anchor", "middle")
+       .attr("font-size", "20px")
+       .text(d => d);
 
-        // Introductory text
-        svg.append("text")
-           .attr("x", 50)
-           .attr("y", 100)
-           .text("Welcome to the Earthquake Data Visualization")
-           .attr("font-size", "24px")
-           .attr("fill", "black");
+    svg.append("text")
+       .attr("x", 480)
+       .attr("y", 400)
+       .attr("text-anchor", "middle")
+       .attr("font-size", "18px")
+       .attr("fill", "gray")
+       .text("Use the 'Next' button to begin exploring the data.");
+}
 
-        svg.append("text")
-           .attr("x", 50)
-           .attr("y", 150)
-           .text("This visualization will guide you through the key aspects of global earthquake data.")
-           .attr("font-size", "18px")
-           .attr("fill", "black");
-    }
+// Render Sepal Length vs Sepal Width Scene
+function renderSepalLengthWidth(data) {
+    const x = d3.scaleLinear().domain([4, 8]).range([50, 910]);
+    const y = d3.scaleLinear().domain([2, 4.5]).range([450, 50]);
 
-    function scene1() {
-        svg.selectAll("*").remove(); // Clear the SVG
+    svg.append("g")
+       .attr("transform", "translate(0,450)")
+       .call(d3.axisBottom(x));
 
-        // Set up scales
-        const xScale = d3.scaleLog()
-                         .domain([d3.min(data, d => d.mag), d3.max(data, d => d.mag)])
-                         .range([50, 750]);
-        const yScale = d3.scaleLog()
-                         .domain([d3.min(data, d => d.depth), d3.max(data, d => d.depth)])
-                         .range([550, 50]);
+    svg.append("g")
+       .attr("transform", "translate(50,0)")
+       .call(d3.axisLeft(y));
 
-        // Add axes
-        svg.append("g")
-           .attr("transform", "translate(0,550)")
-           .call(d3.axisBottom(xScale).ticks(10, ",.1f"));
-        svg.append("g")
-           .attr("transform", "translate(50,0)")
-           .call(d3.axisLeft(yScale).ticks(10, ",.1f"));
+    svg.selectAll(".dot")
+       .data(data)
+       .enter().append("circle")
+       .attr("cx", d => x(d.sepal_length))
+       .attr("cy", d => y(d.sepal_width))
+       .attr("r", 3)
+       .attr("fill", "steelblue");
 
-        // Add points
-        svg.selectAll("circle")
-           .data(data)
-           .enter()
-           .append("circle")
-           .attr("cx", d => xScale(d.mag))
-           .attr("cy", d => 5)
-           .attr("r", 5)
-           .attr("fill", "steelblue")
-           .on("mouseover", function(event, d) {
-               tooltip.style("display", "block")
-                      .html(`Place: ${d.place}<br>Magnitude: ${d.mag}`)
-                      .style("left", (event.pageX + 10) + "px")
-                      .style("top", (event.pageY - 10) + "px");
-           })
-           .on("mousemove", function(event) {
-               tooltip.style("left", (event.pageX + 10) + "px")
-                      .style("top", (event.pageY - 10) + "px");
-           })
-           .on("mouseout", function() {
-               tooltip.style("display", "none");
-           });
+    svg.append("text")
+       .attr("x", 480)
+       .attr("y", 30)
+       .attr("text-anchor", "middle")
+       .attr("font-size", "24px")
+       .text("Sepal Length vs. Sepal Width");
+}
 
-        // Add annotations
-        svg.append("text")
-           .attr("x", 50)
-           .attr("y", 30)
-           .text("Scene 1: Magnitude vs. Depth")
-           .attr("font-size", "24px")
-           .attr("fill", "black");
+// Render Petal Length vs Petal Width Scene
+function renderPetalLengthWidth(data) {
+    const x = d3.scaleLinear().domain([1, 7]).range([50, 910]);
+    const y = d3.scaleLinear().domain([0, 2.5]).range([450, 50]);
 
-        svg.append("text")
-           .attr("x", 50)
-           .attr("y", 70)
-           .text("This scatter plot shows the relationship between the magnitude and depth of earthquakes.")
-           .attr("font-size", "18px")
-           .attr("fill", "black");
-    }
+    svg.append("g")
+       .attr("transform", "translate(0,450)")
+       .call(d3.axisBottom(x));
 
-    function scene2() {
-        svg.selectAll("*").remove(); // Clear the SVG
+    svg.append("g")
+       .attr("transform", "translate(50,0)")
+       .call(d3.axisLeft(y));
 
-        // Load and display the world map
-        d3.json("https://d3js.org/world-50m.v1.json").then(function(world) {
-            const projection = d3.geoMercator()
-                                 .scale(150)
-                                 .translate([400, 300]);
-            const path = d3.geoPath().projection(projection);
+    svg.selectAll(".dot")
+       .data(data)
+       .enter().append("circle")
+       .attr("cx", d => x(d.petal_length))
+       .attr("cy", d => y(d.petal_width))
+       .attr("r", 3)
+       .attr("fill", "steelblue");
 
-            svg.append("path")
-               .datum(topojson.feature(world, world.objects.countries))
-               .attr("d", path)
-               .attr("fill", "#ccc")
-               .attr("stroke", "#333");
+    svg.append("text")
+       .attr("x", 480)
+       .attr("y", 30)
+       .attr("text-anchor", "middle")
+       .attr("font-size", "24px")
+       .text("Petal Length vs. Petal Width");
+}
 
-            // Add earthquake points
-            svg.selectAll("circle")
-               .data(data)
-               .enter()
-               .append("circle")
-               .attr("cx", d => {
-                   const coords = projection([d.longitude, d.latitude]);
-                   return coords ? coords[0] : null;
-               })
-               .attr("cy", d => {
-                   const coords = projection([d.longitude, d.latitude]);
-                   return coords ? coords[1] : null;
-               })
-               .attr("r", d => Math.sqrt(d.mag))
-               .attr("fill", "orange")
-               .attr("opacity", 0.6)
-               .on("mouseover", function(event, d) {
-                   tooltip.style("display", "block")
-                          .html(`Place: ${d.place}<br>Magnitude: ${d.mag}`)
-                          .style("left", (event.pageX + 10) + "px")
-                          .style("top", (event.pageY - 10) + "px");
-                   d3.select(this).attr("fill", "red");
-               })
-               .on("mousemove", function(event) {
-                   tooltip.style("left", (event.pageX + 10) + "px")
-                          .style("top", (event.pageY - 10) + "px");
-               })
-               .on("mouseout", function() {
-                   tooltip.style("display", "none");
-                   d3.select(this).attr("fill", "orange");
-               });
+// Render Sepal Length vs Petal Length Scene Colored by Species
+function renderSpeciesScatterPlot(data) {
+    const x = d3.scaleLinear().domain([4, 8]).range([50, 910]);
+    const y = d3.scaleLinear().domain([1, 7]).range([450, 50]);
 
-            // Add annotations
-            svg.append("text")
-               .attr("x", 50)
-               .attr("y", 30)
-               .text("Scene 2: Global Earthquake Locations")
-               .attr("font-size", "24px")
-               .attr("fill", "black");
+    svg.append("g")
+       .attr("transform", "translate(0,450)")
+       .call(d3.axisBottom(x));
 
-            svg.append("text")
-               .attr("x", 50)
-               .attr("y", 70)
-               .text("This map shows the locations of earthquakes globally.")
-               .attr("font-size", "18px")
-               .attr("fill", "black");
-        });
-    }
+    svg.append("g")
+       .attr("transform", "translate(50,0)")
+       .call(d3.axisLeft(y));
 
-    function scene3() {
-        svg.selectAll("*").remove(); // Clear the SVG
+    const color = d3.scaleOrdinal()
+                    .domain(["setosa", "versicolor", "virginica"])
+                    .range(["#ff7f0e", "#2ca02c", "#1f77b4"]);
 
-        // Set up scales
-        const xScale = d3.scaleLog()
-                         .domain([d3.min(data, d => d.longitude), d3.max(data, d => d.longitude)])
-                         .range([50, 750]);
-        const yScale = d3.scaleLog()
-                         .domain([d3.min(data, d => d.latitude), d3.max(data, d => d.latitude)])
-                         .range([550, 50]);
+    svg.selectAll(".dot")
+       .data(data)
+       .enter().append("circle")
+       .attr("cx", d => x(d.sepal_length))
+       .attr("cy", d => y(d.petal_length))
+       .attr("r", 3)
+       .attr("fill", d => color(d.species));
 
-        // Add points
-        svg.selectAll("circle")
-           .data(data)
-           .enter()
-           .append("circle")
-           .attr("cx", d => xScale(d.longitude))
-           .attr("cy", d => yScale(d.latitude))
-           .attr("r", d => d.depth / 20)
-           .attr("fill", "red")
-           .on("mouseover", function(event, d) {
-               tooltip.style("display", "block")
-                      .html(`Place: ${d.place}<br>Magnitude: ${d.mag}`)
-                      .style("left", (event.pageX + 10) + "px")
-                      .style("top", (event.pageY - 10) + "px");
-           })
-           .on("mousemove", function(event) {
-               tooltip.style("left", (event.pageX + 10) + "px")
-                      .style("top", (event.pageY - 10) + "px");
-           })
-           .on("mouseout", function() {
-               tooltip.style("display", "none");
-           });
+    svg.append("text")
+       .attr("x", 480)
+       .attr("y", 30)
+       .attr("text-anchor", "middle")
+       .attr("font-size", "24px")
+       .text("Sepal Length vs. Petal Length Colored by Species");
+}
 
-        // Add annotations
-        svg.append("text")
-           .attr("x", 50)
-           .attr("y", 30)
-           .text("Scene 3: Depth by Location")
-           .attr("font-size", "24px")
-           .attr("fill", "black");
+// Triggers for navigation
+d3.select("#prev").on("click", () => {
+    currentScene = Math.max(0, currentScene - 1);
+    updateScene(data);
+});
 
-        svg.append("text")
-           .attr("x", 50)
-           .attr("y", 70)
-           .text("This scatter plot shows the depth of earthquakes by their geographic location.")
-           .attr("font-size", "18px")
-           .attr("fill", "black");
-    }
-
-    // Scene array
-    const scenes = [introScene, scene1, scene2, scene3];
-
-    // Function to render the current scene
-    function renderScene(index) {
-        scenes[index]();
-    }
-
-    // Initial render
-    renderScene(currentSceneIndex);
-
-    // Navigation buttons
-    d3.select("#prev").on("click", function() {
-        if (currentSceneIndex > 0) {
-            currentSceneIndex--;
-            renderScene(currentSceneIndex);
-        }
-    });
-
-    d3.select("#next").on("click", function() {
-        if (currentSceneIndex < scenes.length - 1) {
-            currentSceneIndex++;
-            renderScene(currentSceneIndex);
-        }
-    });
+d3.select("#next").on("click", () => {
+    currentScene = Math.min(scenes.length - 1, currentScene + 1);
+    updateScene(data);
 });
