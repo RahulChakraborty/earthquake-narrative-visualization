@@ -4,16 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Earthquake Visualization</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://d3js.org/topojson.v1.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        #navigation { margin-bottom: 20px; }
+        .hidden { display: none; }
+    </style>
 </head>
 <body>
-    <div id="visualization"></div>
-    <div id="controls">
-        <button id="scene1">Magnitude and Depth</button>
-        <button id="scene2">Magnitude by Location</button>
-        <button id="scene3">Depth by Location</button>
+    <div id="navigation">
+        <button id="prev">Previous</button>
+        <button id="next">Next</button>
     </div>
-    <script src="js/d3.v7.js"></script>
+    <div id="visualization"></div>
     <script src="js/main.js"></script>
 </body>
 </html>
