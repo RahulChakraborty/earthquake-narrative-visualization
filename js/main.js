@@ -28,18 +28,17 @@ function updateScene(data) {
     scenes[currentScene](data);
 }
 
-// Function to create tooltip
-function createTooltip() {
+// Function to create detail box
+function createDetailBox() {
     return d3.select("body").append("div")
-        .attr("class", "tooltip")
+        .attr("class", "detail-box")
         .style("position", "absolute")
-        .style("text-align", "center")
-        .style("width", "120px")
-        .style("height", "28px")
-        .style("padding", "2px")
+        .style("text-align", "left")
+        .style("width", "200px")
+        .style("padding", "10px")
         .style("font", "12px sans-serif")
-        .style("background", "lightsteelblue")
-        .style("border", "0px")
+        .style("background", "white")
+        .style("border", "1px solid #ccc")
         .style("border-radius", "8px")
         .style("pointer-events", "none")
         .style("opacity", 0);
@@ -86,7 +85,7 @@ function renderSepalLengthWidth(data) {
        .attr("transform", "translate(50,0)")
        .call(d3.axisLeft(y));
 
-    const tooltip = createTooltip();
+    const detailBox = createDetailBox();
 
     svg.selectAll(".dot")
        .data(data)
@@ -96,17 +95,37 @@ function renderSepalLengthWidth(data) {
        .attr("r", 3)
        .attr("fill", "steelblue")
        .on("mouseover", function(event, d) {
-            tooltip.transition()
+            detailBox.transition()
                    .duration(200)
                    .style("opacity", .9);
-            tooltip.html(`Sepal Length: ${d.sepal_length}<br>Sepal Width: ${d.sepal_width}`)
+            detailBox.html(`
+                <strong>Details:</strong><br>
+                Sepal Length: ${d.sepal_length}<br>
+                Sepal Width: ${d.sepal_width}<br>
+                Petal Length: ${d.petal_length}<br>
+                Petal Width: ${d.petal_width}<br>
+                Species: ${d.species}`)
                    .style("left", (event.pageX + 5) + "px")
-                   .style("top", (event.pageY - 28) + "px");
+                   .style("top", (event.pageY + 5) + "px");
        })
        .on("mouseout", function(d) {
-            tooltip.transition()
+            detailBox.transition()
                    .duration(500)
                    .style("opacity", 0);
+       })
+       .on("click", function(event, d) {
+            detailBox.transition()
+                   .duration(200)
+                   .style("opacity", .9);
+            detailBox.html(`
+                <strong>Details:</strong><br>
+                Sepal Length: ${d.sepal_length}<br>
+                Sepal Width: ${d.sepal_width}<br>
+                Petal Length: ${d.petal_length}<br>
+                Petal Width: ${d.petal_width}<br>
+                Species: ${d.species}`)
+                   .style("left", (event.pageX + 5) + "px")
+                   .style("top", (event.pageY + 5) + "px");
        });
 
     svg.append("text")
@@ -115,24 +134,6 @@ function renderSepalLengthWidth(data) {
        .attr("text-anchor", "middle")
        .attr("font-size", "24px")
        .text("Sepal Length vs. Sepal Width");
-
-    // Manual Annotations
-    // svg.append("text")
-    //    .attr("x", x(5.5))
-    //    .attr("y", y(3.5))
-    //    .attr("dy", "-10")
-    //    .attr("dx", "10")
-    //    .attr("font-size", "12px")
-    //    .attr("fill", "black")
-    //    .text("Sepal length and width vary among species.");
-
-    // svg.append("line")
-    //    .attr("x1", x(5.5))
-    //    .attr("y1", y(3.5))
-    //    .attr("x2", x(6))
-    //    .attr("y2", y(3.8))
-    //    .attr("stroke", "black")
-    //    .attr("stroke-width", 1);
 }
 
 // Render Petal Length vs Petal Width Scene
@@ -148,7 +149,7 @@ function renderPetalLengthWidth(data) {
        .attr("transform", "translate(50,0)")
        .call(d3.axisLeft(y));
 
-    const tooltip = createTooltip();
+    const detailBox = createDetailBox();
 
     svg.selectAll(".dot")
        .data(data)
@@ -158,17 +159,37 @@ function renderPetalLengthWidth(data) {
        .attr("r", 3)
        .attr("fill", "steelblue")
        .on("mouseover", function(event, d) {
-            tooltip.transition()
+            detailBox.transition()
                    .duration(200)
                    .style("opacity", .9);
-            tooltip.html(`Petal Length: ${d.petal_length}<br>Petal Width: ${d.petal_width}`)
+            detailBox.html(`
+                <strong>Details:</strong><br>
+                Sepal Length: ${d.sepal_length}<br>
+                Sepal Width: ${d.sepal_width}<br>
+                Petal Length: ${d.petal_length}<br>
+                Petal Width: ${d.petal_width}<br>
+                Species: ${d.species}`)
                    .style("left", (event.pageX + 5) + "px")
-                   .style("top", (event.pageY - 28) + "px");
+                   .style("top", (event.pageY + 5) + "px");
        })
        .on("mouseout", function(d) {
-            tooltip.transition()
+            detailBox.transition()
                    .duration(500)
                    .style("opacity", 0);
+       })
+       .on("click", function(event, d) {
+            detailBox.transition()
+                   .duration(200)
+                   .style("opacity", .9);
+            detailBox.html(`
+                <strong>Details:</strong><br>
+                Sepal Length: ${d.sepal_length}<br>
+                Sepal Width: ${d.sepal_width}<br>
+                Petal Length: ${d.petal_length}<br>
+                Petal Width: ${d.petal_width}<br>
+                Species: ${d.species}`)
+                   .style("left", (event.pageX + 5) + "px")
+                   .style("top", (event.pageY + 5) + "px");
        });
 
     svg.append("text")
@@ -177,24 +198,6 @@ function renderPetalLengthWidth(data) {
        .attr("text-anchor", "middle")
        .attr("font-size", "24px")
        .text("Petal Length vs. Petal Width");
-
-    // Manual Annotations
-    // svg.append("text")
-    //    .attr("x", x(4))
-    //    .attr("y", y(1.5))
-    //    .attr("dy", "-10")
-    //    .attr("dx", "10")
-    //    .attr("font-size", "12px")
-    //    .attr("fill", "black")
-    //    .text("Petal length and width show significant variation.");
-
-    // svg.append("line")
-    //    .attr("x1", x(4))
-    //    .attr("y1", y(1.5))
-    //    .attr("x2", x(4.5))
-    //    .attr("y2", y(1.8))
-    //    .attr("stroke", "black")
-    //    .attr("stroke-width", 1);
 }
 
 // Render Sepal Length vs Petal Length Scene Colored by Species
@@ -214,7 +217,7 @@ function renderSpeciesScatterPlot(data) {
                     .domain(["setosa", "versicolor", "virginica"])
                     .range(["#ff7f0e", "#2ca02c", "#1f77b4"]);
 
-    const tooltip = createTooltip();
+    const detailBox = createDetailBox();
 
     svg.selectAll(".dot")
        .data(data)
@@ -224,17 +227,37 @@ function renderSpeciesScatterPlot(data) {
        .attr("r", 3)
        .attr("fill", d => color(d.species))
        .on("mouseover", function(event, d) {
-            tooltip.transition()
+            detailBox.transition()
                    .duration(200)
                    .style("opacity", .9);
-            tooltip.html(`Sepal Length: ${d.sepal_length}<br>Petal Length: ${d.petal_length}<br>Species: ${d.species}`)
+            detailBox.html(`
+                <strong>Details:</strong><br>
+                Sepal Length: ${d.sepal_length}<br>
+                Sepal Width: ${d.sepal_width}<br>
+                Petal Length: ${d.petal_length}<br>
+                Petal Width: ${d.petal_width}<br>
+                Species: ${d.species}`)
                    .style("left", (event.pageX + 5) + "px")
-                   .style("top", (event.pageY - 28) + "px");
+                   .style("top", (event.pageY + 5) + "px");
        })
        .on("mouseout", function(d) {
-            tooltip.transition()
+            detailBox.transition()
                    .duration(500)
                    .style("opacity", 0);
+       })
+       .on("click", function(event, d) {
+            detailBox.transition()
+                   .duration(200)
+                   .style("opacity", .9);
+            detailBox.html(`
+                <strong>Details:</strong><br>
+                Sepal Length: ${d.sepal_length}<br>
+                Sepal Width: ${d.sepal_width}<br>
+                Petal Length: ${d.petal_length}<br>
+                Petal Width: ${d.petal_width}<br>
+                Species: ${d.species}`)
+                   .style("left", (event.pageX + 5) + "px")
+                   .style("top", (event.pageY + 5) + "px");
        });
 
     svg.append("text")
@@ -243,24 +266,6 @@ function renderSpeciesScatterPlot(data) {
        .attr("text-anchor", "middle")
        .attr("font-size", "24px")
        .text("Sepal Length vs. Petal Length Colored by Species");
-
-    // // Manual Annotations
-    // svg.append("text")
-    //    .attr("x", x(5.5))
-    //    .attr("y", y(3))
-    //    .attr("dy", "-10")
-    //    .attr("dx", "10")
-    //    .attr("font-size", "12px")
-    //    .attr("fill", "black")
-    //    .text("Color indicates species, showing variation among them.");
-
-    // svg.append("line")
-    //    .attr("x1", x(5.5))
-    //    .attr("y1", y(3))
-    //    .attr("x2", x(6))
-    //    .attr("y2", y(4))
-    //    .attr("stroke", "black")
-    //    .attr("stroke-width", 1);
 }
 
 // Triggers for navigation
