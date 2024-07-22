@@ -68,12 +68,15 @@ function calculateRegressionLine(data, xAttr, yAttr) {
     const yMin = intercept + slope * xMin;
     const yMax = intercept + slope * xMax;
 
-    return [[xMin, yMin], [xMax, yMax]];
+    return { line: [[xMin, yMin], [xMax, yMax]], slope, intercept };
 }
 
 // Function to add regression line
 function addRegressionLine(svg, x, y, data, xAttr, yAttr) {
-    const regressionLine = calculateRegressionLine(data, xAttr, yAttr);
+    const regression = calculateRegressionLine(data, xAttr, yAttr);
+    const regressionLine = regression.line;
+    const slope = regression.slope;
+    const intercept = regression.intercept;
 
     svg.append("line")
         .attr("x1", x(regressionLine[0][0]))
@@ -82,6 +85,14 @@ function addRegressionLine(svg, x, y, data, xAttr, yAttr) {
         .attr("y2", y(regressionLine[1][1]))
         .attr("stroke", "red")
         .attr("stroke-width", 2);
+
+    svg.append("text")
+        .attr("x", 700)
+        .attr("y", 50)
+        .attr("text-anchor", "middle")
+        .attr("font-size", "14px")
+        .attr("fill", "red")
+        .text(`y = ${slope.toFixed(2)}x + ${intercept.toFixed(2)}`);
 }
 
 // Intro Scene: Explaining the Dataset
