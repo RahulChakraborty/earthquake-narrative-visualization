@@ -54,21 +54,47 @@ function renderIntro() {
         "This visualization will guide you through different aspects of the dataset."
     ];
 
-    svg.selectAll("text")
+    // svg.selectAll("text")
+    //    .data(introText)
+    //    .enter().append("text")
+    //    .attr("x", 480)
+    //    .attr("y", (d, i) => 100 + i * 30)
+    //    .attr("text-anchor", "middle")
+    //    .attr("font-size", "20px")
+    //    .text(d => d);
+
+    // svg.append("text")
+    //    .attr("x", 480)
+    //    .attr("y", 400)
+    //    .attr("text-anchor", "middle")
+    //    .attr("font-size", "18px")
+    //    .attr("fill", "gray")
+    //    .text("Use the 'Next' button to begin exploring the data.");
+
+
+    const introContainer = svg.append("foreignObject")
+       .attr("width", 960)
+       .attr("height", 500)
+       .append("xhtml:div")
+       .attr("id", "intro");
+
+    introContainer.selectAll("p")
        .data(introText)
-       .enter().append("text")
-       .attr("x", 480)
-       .attr("y", (d, i) => 100 + i * 30)
-       .attr("text-anchor", "middle")
-       .attr("font-size", "20px")
+       .enter().append("p")
+       .attr("style", "text-align: center; font-size: 20px; margin: 20px 0;")
        .text(d => d);
 
-    svg.append("text")
-       .attr("x", 480)
-       .attr("y", 400)
-       .attr("text-anchor", "middle")
-       .attr("font-size", "18px")
-       .attr("fill", "gray")
+    introContainer.append("img")
+       .attr("src", "images/flower-image.png")
+       .attr("alt", "Iris Flower Diagram")
+       .attr("style", "width: 300px; margin-top: 20px;");
+
+    introContainer.append("p")
+       .attr("style", "text-align: center; font-size: 18px; margin: 20px 0; color: gray;")
+       .text("The image shows the petal and sepal parts of an Iris flower.");
+
+    introContainer.append("p")
+       .attr("style", "text-align: center; font-size: 18px; color: gray;")
        .text("Use the 'Next' button to begin exploring the data.");
 }
 

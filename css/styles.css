@@ -21,3 +21,9 @@ svg {
     margin: 10px;
     padding: 10px 20px;
 }
+
+img {
+    display: block;
+    margin: 0 auto;
+    width: 50%;
+  } 
