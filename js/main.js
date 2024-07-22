@@ -34,7 +34,7 @@ function createDetailBox() {
         .attr("class", "detail-box")
         .style("position", "absolute")
         .style("text-align", "left")
-        .style("width", "200px")
+        .style("width", "250px")
         .style("padding", "10px")
         .style("font", "12px sans-serif")
         .style("background", "white")
@@ -42,6 +42,46 @@ function createDetailBox() {
         .style("border-radius", "8px")
         .style("pointer-events", "none")
         .style("opacity", 0);
+}
+
+// Function to get image URL based on species
+function getImageUrl(species) {
+    const imageUrls = {
+        setosa: 'images/iris_setosa.png',
+        versicolor: 'images/iris-versicolor.jpg',
+        virginica: 'images/iris_virginica.jpg'
+    };
+    return imageUrls[species.toLowerCase()];
+}
+
+// Function to calculate regression line
+function calculateRegressionLine(data, xAttr, yAttr) {
+    const xMean = d3.mean(data, d => d[xAttr]);
+    const yMean = d3.mean(data, d => d[yAttr]);
+    const numerator = d3.sum(data, d => (d[xAttr] - xMean) * (d[yAttr] - yMean));
+    const denominator = d3.sum(data, d => Math.pow(d[xAttr] - xMean, 2));
+    const slope = numerator / denominator;
+    const intercept = yMean - (slope * xMean);
+
+    const xMin = d3.min(data, d => d[xAttr]);
+    const xMax = d3.max(data, d => d[xAttr]);
+    const yMin = intercept + slope * xMin;
+    const yMax = intercept + slope * xMax;
+
+    return [[xMin, yMin], [xMax, yMax]];
+}
+
+// Function to add regression line
+function addRegressionLine(svg, x, y, data, xAttr, yAttr) {
+    const regressionLine = calculateRegressionLine(data, xAttr, yAttr);
+
+    svg.append("line")
+        .attr("x1", x(regressionLine[0][0]))
+        .attr("y1", y(regressionLine[0][1]))
+        .attr("x2", x(regressionLine[1][0]))
+        .attr("y2", y(regressionLine[1][1]))
+        .attr("stroke", "red")
+        .attr("stroke-width", 2);
 }
 
 // Intro Scene: Explaining the Dataset
@@ -53,24 +93,6 @@ function renderIntro() {
         "The dataset contains three species: Iris setosa, Iris versicolor, and Iris virginica.",
         "This visualization will guide you through different aspects of the dataset."
     ];
-
-    // svg.selectAll("text")
-    //    .data(introText)
-    //    .enter().append("text")
-    //    .attr("x", 480)
-    //    .attr("y", (d, i) => 100 + i * 30)
-    //    .attr("text-anchor", "middle")
-    //    .attr("font-size", "20px")
-    //    .text(d => d);
-
-    // svg.append("text")
-    //    .attr("x", 480)
-    //    .attr("y", 400)
-    //    .attr("text-anchor", "middle")
-    //    .attr("font-size", "18px")
-    //    .attr("fill", "gray")
-    //    .text("Use the 'Next' button to begin exploring the data.");
-
 
     const introContainer = svg.append("foreignObject")
        .attr("width", 960)
@@ -111,6 +133,23 @@ function renderSepalLengthWidth(data) {
        .attr("transform", "translate(50,0)")
        .call(d3.axisLeft(y));
 
+    svg.append("text")
+       .attr("x", 480)
+       .attr("y", 490)
+       .attr("text-anchor", "middle")
+       .attr("font-size", "16px")
+       .text("Sepal Length (cm)");
+
+    svg.append("text")
+       .attr("x", -225)
+       .attr("y", 15)
+       .attr("transform", "rotate(-90)")
+       .attr("text-anchor", "middle")
+       .attr("font-size", "16px")
+       .text("Sepal Width (cm)");
+
+    addRegressionLine(svg, x, y, data, 'sepal_length', 'sepal_width');
+
     const detailBox = createDetailBox();
 
     svg.selectAll(".dot")
@@ -126,6 +165,7 @@ function renderSepalLengthWidth(data) {
                    .style("opacity", .9);
             detailBox.html(`
                 <strong>Details:</strong><br>
+                <img src="${getImageUrl(d.species)}" alt="${d.species}"><br>
                 Sepal Length: ${d.sepal_length}<br>
                 Sepal Width: ${d.sepal_width}<br>
                 Petal Length: ${d.petal_length}<br>
@@ -145,6 +185,7 @@ function renderSepalLengthWidth(data) {
                    .style("opacity", .9);
             detailBox.html(`
                 <strong>Details:</strong><br>
+                <img src="${getImageUrl(d.species)}" alt="${d.species}"><br>
                 Sepal Length: ${d.sepal_length}<br>
                 Sepal Width: ${d.sepal_width}<br>
                 Petal Length: ${d.petal_length}<br>
@@ -175,6 +216,23 @@ function renderPetalLengthWidth(data) {
        .attr("transform", "translate(50,0)")
        .call(d3.axisLeft(y));
 
+    svg.append("text")
+       .attr("x", 480)
+       .attr("y", 490)
+       .attr("text-anchor", "middle")
+       .attr("font-size", "16px")
+       .text("Petal Length (cm)");
+
+    svg.append("text")
+       .attr("x", -225)
+       .attr("y", 15)
+       .attr("transform", "rotate(-90)")
+       .attr("text-anchor", "middle")
+       .attr("font-size", "16px")
+       .text("Petal Width (cm)");
+
+    addRegressionLine(svg, x, y, data, 'petal_length', 'petal_width');
+
     const detailBox = createDetailBox();
 
     svg.selectAll(".dot")
@@ -190,6 +248,7 @@ function renderPetalLengthWidth(data) {
                    .style("opacity", .9);
             detailBox.html(`
                 <strong>Details:</strong><br>
+                <img src="${getImageUrl(d.species)}" alt="${d.species}"><br>
                 Sepal Length: ${d.sepal_length}<br>
                 Sepal Width: ${d.sepal_width}<br>
                 Petal Length: ${d.petal_length}<br>
@@ -209,6 +268,7 @@ function renderPetalLengthWidth(data) {
                    .style("opacity", .9);
             detailBox.html(`
                 <strong>Details:</strong><br>
+                <img src="${getImageUrl(d.species)}" alt="${d.species}"><br>
                 Sepal Length: ${d.sepal_length}<br>
                 Sepal Width: ${d.sepal_width}<br>
                 Petal Length: ${d.petal_length}<br>
@@ -243,6 +303,23 @@ function renderSpeciesScatterPlot(data) {
                     .domain(["setosa", "versicolor", "virginica"])
                     .range(["#ff7f0e", "#2ca02c", "#1f77b4"]);
 
+        svg.append("text")
+                    .attr("x", 480)
+                    .attr("y", 490)
+                    .attr("text-anchor", "middle")
+                    .attr("font-size", "16px")
+                    .text("Sepal Length (cm)");
+             
+        svg.append("text")
+                    .attr("x", -225)
+                    .attr("y", 15)
+                    .attr("transform", "rotate(-90)")
+                    .attr("text-anchor", "middle")
+                    .attr("font-size", "16px")
+                    .text("Petal Length (cm)");
+
+    addRegressionLine(svg, x, y, data, 'sepal_length', 'petal_length');
+
     const detailBox = createDetailBox();
 
     svg.selectAll(".dot")
@@ -258,6 +335,7 @@ function renderSpeciesScatterPlot(data) {
                    .style("opacity", .9);
             detailBox.html(`
                 <strong>Details:</strong><br>
+                <img src="${getImageUrl(d.species)}" alt="${d.species}"><br>
                 Sepal Length: ${d.sepal_length}<br>
                 Sepal Width: ${d.sepal_width}<br>
                 Petal Length: ${d.petal_length}<br>
@@ -277,6 +355,7 @@ function renderSpeciesScatterPlot(data) {
                    .style("opacity", .9);
             detailBox.html(`
                 <strong>Details:</strong><br>
+                <img src="${getImageUrl(d.species)}" alt="${d.species}"><br>
                 Sepal Length: ${d.sepal_length}<br>
                 Sepal Width: ${d.sepal_width}<br>
                 Petal Length: ${d.petal_length}<br>
