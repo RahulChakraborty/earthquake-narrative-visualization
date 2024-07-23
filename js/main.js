@@ -95,6 +95,29 @@ function addRegressionLine(svg, x, y, data, xAttr, yAttr) {
         .text(`y = ${slope.toFixed(2)}x + ${intercept.toFixed(2)}`);
 }
 
+// Function to add legend
+function addLegend(svg, color) {
+   const legend = svg.selectAll(".legend")
+       .data(color.domain())
+       .enter().append("g")
+       .attr("class", "legend")
+       .attr("transform", (d, i) => `translate(${i * 150}, 0)`);
+
+   legend.append("rect")
+       .attr("x", 50)
+       .attr("y", 470)
+       .attr("width", 18)
+       .attr("height", 18)
+       .style("fill", color);
+
+   legend.append("text")
+       .attr("x", 75)
+       .attr("y", 479)
+       .attr("dy", ".35em")
+       .style("text-anchor", "start")
+       .text(d => d);
+}
+
 // Intro Scene: Explaining the Dataset
 function renderIntro() {
     const introText = [
@@ -136,6 +159,10 @@ function renderSepalLengthWidth(data) {
     const x = d3.scaleLinear().domain([4, 8]).range([50, 910]);
     const y = d3.scaleLinear().domain([2, 4.5]).range([450, 50]);
 
+    const color = d3.scaleOrdinal()
+    .domain(["setosa", "versicolor", "virginica"])
+    .range(["#ff7f0e", "#2ca02c", "#1f77b4"]);
+
     svg.append("g")
        .attr("transform", "translate(0,450)")
        .call(d3.axisBottom(x));
@@ -169,7 +196,7 @@ function renderSepalLengthWidth(data) {
        .attr("cx", d => x(d.sepal_length))
        .attr("cy", d => y(d.sepal_width))
        .attr("r", 3)
-       .attr("fill", "steelblue")
+       .attr("fill",  d => color(d.species))
        .on("mouseover", function(event, d) {
             detailBox.transition()
                    .duration(200)
@@ -206,6 +233,9 @@ function renderSepalLengthWidth(data) {
                    .style("top", (event.pageY + 5) + "px");
        });
 
+   
+    addLegend(svg, color);
+
     svg.append("text")
        .attr("x", 480)
        .attr("y", 30)
@@ -218,6 +248,10 @@ function renderSepalLengthWidth(data) {
 function renderPetalLengthWidth(data) {
     const x = d3.scaleLinear().domain([1, 7]).range([50, 910]);
     const y = d3.scaleLinear().domain([0, 2.5]).range([450, 50]);
+
+    const color = d3.scaleOrdinal()
+    .domain(["setosa", "versicolor", "virginica"])
+    .range(["#ff7f0e", "#2ca02c", "#1f77b4"]);
 
     svg.append("g")
        .attr("transform", "translate(0,450)")
@@ -252,7 +286,7 @@ function renderPetalLengthWidth(data) {
        .attr("cx", d => x(d.petal_length))
        .attr("cy", d => y(d.petal_width))
        .attr("r", 3)
-       .attr("fill", "steelblue")
+       .attr("fill",  d => color(d.species))
        .on("mouseover", function(event, d) {
             detailBox.transition()
                    .duration(200)
@@ -289,6 +323,8 @@ function renderPetalLengthWidth(data) {
                    .style("top", (event.pageY + 5) + "px");
        });
 
+
+    addLegend(svg, color);
     svg.append("text")
        .attr("x", 480)
        .attr("y", 30)
@@ -376,12 +412,15 @@ function renderSpeciesScatterPlot(data) {
                    .style("top", (event.pageY + 5) + "px");
        });
 
+   addLegend(svg, color);
+
+
     svg.append("text")
        .attr("x", 480)
        .attr("y", 30)
        .attr("text-anchor", "middle")
        .attr("font-size", "24px")
-       .text("Sepal Length vs. Petal Length Colored by Species");
+       .text("Sepal Length vs. Petal Length");
 }
 
 // Triggers for navigation
