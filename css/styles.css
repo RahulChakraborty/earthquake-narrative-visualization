@@ -17,6 +17,17 @@ svg {
     height: 500px;
 }
 
+.navigation {
+    text-align: center;
+    margin: 20px;
+}
+.navigation button {
+    padding: 10px 20px;
+    font-size: 16px;
+    margin: 5px;
+    cursor: pointer;
+}
+
 #controls button {
     margin: 10px;
     padding: 10px 20px;
@@ -27,3 +38,18 @@ img {
     margin: 0 auto;
     width: 50%;
   } 
+
+.detail-box {
+    position: absolute;
+    text-align: left;
+    width: 250px;
+    padding: 10px;
+    font: 12px sans-serif;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    pointer-events: none;
+    opacity: 0;
+ }
+
+

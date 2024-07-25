@@ -23,11 +23,30 @@ loadData.then(() => {
     updateScene(data);
 }).catch(error => console.error('Error loading the data:', error));
 
+// function updateScene(data) {
+//     svg.selectAll("*").remove();
+//     scenes[currentScene](data);
+// }
+
 function updateScene(data) {
-    svg.selectAll("*").remove();
-    scenes[currentScene](data);
+   svg.selectAll("*").remove();
+   scenes[currentScene](data);
+   updateNavigationButtons();
 }
 
+function updateNavigationButtons() {
+   if (currentScene === 0) {
+       d3.select("#prev").style("display", "none");
+   } else {
+       d3.select("#prev").style("display", "inline-block");
+   }
+
+   if (currentScene === scenes.length - 1) {
+       d3.select("#next").style("display", "none");
+   } else {
+       d3.select("#next").style("display", "inline-block");
+   }
+}
 // Function to create detail box
 function createDetailBox() {
     return d3.select("body").append("div")
@@ -122,7 +141,7 @@ function addLegend(svg, color) {
 function renderIntro() {
     const introText = [
         "The Iris Flower Dataset",
-        "This dataset contains 150 observations of iris flowers.",
+        "This dataset contains 150 observations of Iris flowers from UCI ML Iris dataset",
         "Each observation includes measurements of sepal length, sepal width, petal length, and petal width.",
         "The dataset contains three species: Iris setosa, Iris versicolor, and Iris virginica.",
         "This visualization will guide you through different aspects of the dataset."
@@ -242,6 +261,16 @@ function renderSepalLengthWidth(data) {
        .attr("text-anchor", "middle")
        .attr("font-size", "24px")
        .text("Sepal Length vs. Sepal Width");
+   
+   // Add explanation text for regression line
+   svg.append("foreignObject")
+   .attr("width", 960)
+   .attr("height", 30)
+   .attr("x", 50)
+   .attr("y", 470)
+   .append("xhtml:div")
+   .attr("class", "explanation")
+   .html("<p style='text-align: left; font-size: 8px;'>The best fit regression line for Sepal Length vs. Sepal Width is shown in red with the equation</p>");
 }
 
 // Render Petal Length vs Petal Width Scene
@@ -331,6 +360,16 @@ function renderPetalLengthWidth(data) {
        .attr("text-anchor", "middle")
        .attr("font-size", "24px")
        .text("Petal Length vs. Petal Width");
+
+   // Add explanation text for regression line
+   svg.append("foreignObject")
+   .attr("width", 960)
+   .attr("height", 30)
+   .attr("x", 50)
+   .attr("y", 470)
+   .append("xhtml:div")
+   .attr("class", "explanation")
+   .html("<p style='text-align: left; font-size: 8px;'>The best fit regression line for Petal Length vs. Petal Width is shown in red with the equation </p>");
 }
 
 // Render Sepal Length vs Petal Length Scene Colored by Species
@@ -421,15 +460,28 @@ function renderSpeciesScatterPlot(data) {
        .attr("text-anchor", "middle")
        .attr("font-size", "24px")
        .text("Sepal Length vs. Petal Length");
+
+   // Add explanation text for regression line
+   svg.append("foreignObject")
+   .attr("width", 960)
+   .attr("height", 30)
+   .attr("x", 50)
+   .attr("y", 470)
+   .append("xhtml:div")
+   .attr("class", "explanation")
+   .html("<p style='text-align: left; font-size: 8px;'>The best fit regression line for Sepal Length vs. Petal Length is shown in red with the equation.</p>");
 }
 
 // Triggers for navigation
 d3.select("#prev").on("click", () => {
-    currentScene = Math.max(0, currentScene - 1);
-    loadData.then(data => updateScene(data));
+   currentScene = Math.max(0, currentScene - 1);
+   loadData.then(data => updateScene(data));
 });
 
 d3.select("#next").on("click", () => {
-    currentScene = Math.min(scenes.length - 1, currentScene + 1);
-    loadData.then(data => updateScene(data));
+   currentScene = Math.min(scenes.length - 1, currentScene + 1);
+   loadData.then(data => updateScene(data));
 });
+
+// Initial update of navigation buttons
+updateNavigationButtons();
