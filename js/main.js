@@ -101,18 +101,18 @@ function addLegend(svg, color) {
        .data(color.domain())
        .enter().append("g")
        .attr("class", "legend")
-       .attr("transform", (d, i) => `translate(${i * 150}, 0)`);
+       .attr("transform", (d, i) => `translate(0,${i * 20})`);
 
    legend.append("rect")
-       .attr("x", 50)
-       .attr("y", 470)
+       .attr("x", 860)
+       .attr("y", 350)
        .attr("width", 18)
        .attr("height", 18)
        .style("fill", color);
 
    legend.append("text")
-       .attr("x", 75)
-       .attr("y", 479)
+       .attr("x", 880)
+       .attr("y", 358)
        .attr("dy", ".35em")
        .style("text-anchor", "start")
        .text(d => d);
