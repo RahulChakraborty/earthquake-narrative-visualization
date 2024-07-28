@@ -23,10 +23,6 @@ loadData.then(() => {
     updateScene(data);
 }).catch(error => console.error('Error loading the data:', error));
 
-// function updateScene(data) {
-//     svg.selectAll("*").remove();
-//     scenes[currentScene](data);
-// }
 
 function updateScene(data) {
    svg.selectAll("*").remove();
